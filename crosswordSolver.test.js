@@ -1,34 +1,94 @@
-// crosswordSolver.test.js
-import { describe, it, expect } from 'vitest';
-import crosswordSolver from './crosswordSolver.js';
+import { describe, test, expect, beforeEach, vi } from 'vitest'
+import { crosswordSolver } from './crosswordSolver'  // Assuming the function is exported
 
 describe('crosswordSolver', () => {
-  it('should fill the puzzle correctly when a valid solution exists', () => {
-    const puzzle = '2...\n.....\n3...\n';
-    const words = ['cat', 'dog', 'bat'];
-    const expected = '2cat\n.....\n3dog\n';
+  // Capture console.log output
+  let consoleOutput = []
+  const mockLog = vi.fn(output => consoleOutput.push(output))
 
-    expect(crosswordSolver(puzzle, words)).toBe(expected);
-  });
+  beforeEach(() => {
+    consoleOutput = []
+    console.log = mockLog
+    vi.clearAllMocks()
+  })
 
-  it('should return "Error" when the puzzle does not have a unique solution', () => {
-    const puzzle = '2...\n.....\n3...\n';
-    const words = ['cat', 'dog'];
+  test('solves a simple 4x4 crossword puzzle', () => {
+    const puzzle = '2001\n0..0\n2000\n0..0'
+    const words = ['casa', 'alan', 'ciao', 'anta']
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith(
+      'casa\n' +
+      'i..l\n' +
+      'anta\n' +
+      'o..n'
+    )
+  })
 
-    expect(crosswordSolver(puzzle, words)).toBe('Error');
-  });
+  test('returns error for invalid puzzle dimensions', () => {
+    const puzzle = '200\n0..0\n2000\n0..0'  // First line is shorter
+    const words = ['casa', 'alan', 'ciao', 'anta']
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith('Error')
+  })
 
-  it('should return "Error" when there are more words than required', () => {
-    const puzzle = '2...\n.....\n3...\n';
-    const words = ['cat', 'dog', 'bat', 'rat'];
+  test('returns error when not enough words of correct length', () => {
+    const puzzle = '2001\n0..0\n2000\n0..0'
+    const words = ['casa', 'alan', 'hi']  // Missing a 4-letter word
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith('Error')
+  })
 
-    expect(crosswordSolver(puzzle, words)).toBe('Error');
-  });
+  test('returns error for empty puzzle', () => {
+    const puzzle = ''
+    const words = ['casa', 'alan', 'ciao', 'anta']
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith('Error')
+  })
 
-  it('should return "Error" if any puzzle constraints are violated', () => {
-    const puzzle = '2...4\n.....\n3...\n'; // invalid puzzle
-    const words = ['cat', 'dog', 'bat'];
+  test('returns error for empty words array', () => {
+    const puzzle = '2001\n0..0\n2000\n0..0'
+    const words = []
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith('Error')
+  })
 
-    expect(crosswordSolver(puzzle, words)).toBe('Error');
-  });
-});
+  test('returns error for null words', () => {
+    const puzzle = '2001\n0..0\n2000\n0..0'
+    const words = null
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith('Error')
+  })
+
+  test('handles puzzle with no solution', () => {
+    const puzzle = '2001\n0..0\n2000\n0..0'
+    const words = ['casa', 'alan', 'ciao', 'zzzz']  // 'zzzz' makes it impossible to solve
+    
+    crosswordSolver(puzzle, words)
+    
+    expect(mockLog).toHaveBeenCalledWith('Error')
+  })
+
+  test('solves puzzle with repeated word lengths', () => {
+    const puzzle = '2001\n0..0\n2001\n0..0'  // Both horizontal words are 4 letters
+    const words = ['casa', 'alan', 'ciao', 'anta', 'wine']  // Extra 4-letter word
+    
+    crosswordSolver(puzzle, words)
+    
+    // The exact solution might vary, but it should output something
+    expect(mockLog).toHaveBeenCalled()
+    expect(consoleOutput.length).toBe(1)
+    expect(consoleOutput[0]).toMatch(/^[a-z]{4}\n[a-z]\.{2}[a-z]\n[a-z]{4}\n[a-z]\.{2}[a-z]$/)
+  })
+})
