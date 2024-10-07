@@ -1,0 +1,19 @@
+{
+  "name": "crossword",
+  "version": "1.0.0",
+  "description": "This project is a crossword puzzle solver implemented in JavaScript. The solver takes an empty puzzle template and a list of words, then fills the puzzle grid by placing the words in appropriate locations following specific rules.",
+  "main": "crosswordSolver.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://learn.zone01kisumu.ke/git/hilaromondi/crossword.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
+}
